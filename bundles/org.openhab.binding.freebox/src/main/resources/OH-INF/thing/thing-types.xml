@@ -95,6 +95,13 @@
 				<advanced>true</advanced>
 			</parameter>
 
+			<parameter name="discoverHomeNode" type="boolean">
+				<label>Enable Home Node Discovery</label>
+				<description>Enable the discovery of Home Node things</description>
+				<default>true</default>
+				<advanced>true</advanced>
+			</parameter>
+
 		</config-description>
 	</bridge-type>
 
@@ -203,6 +210,27 @@
 				<description>Accept any bitrate for MP3 audio or only bitrates greater than 64 kbps</description>
 				<default>true</default>
 				<advanced>true</advanced>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<thing-type id="shutter">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="server"/>
+		</supported-bridge-type-refs>
+
+		<label>Shutter Home Node</label>
+		<description>Provides control and state of a shutter home node</description>
+
+		<channels>
+			<channel id="shutter_position" typeId="shutter_position"/>
+		</channels>
+
+		<config-description>
+			<parameter name="id" type="integer" required="true">
+				<label>ID of the shutter home node</label>
+				<description>The ID of the shutter home node</description>
+				<default></default>
 			</parameter>
 		</config-description>
 	</thing-type>
@@ -551,6 +579,13 @@
 		<item-type>Switch</item-type>
 		<label>Stop Playback</label>
 		<description>Stop the media playback</description>
+	</channel-type>
+
+	<channel-type id="shutter_position">
+		<item-type>Number</item-type>
+		<label>Shutter Position</label>
+		<description>Set the shutter position [0, 100]</description>
+		<state min="0" max="100" step="1"/>
 	</channel-type>
 
 </thing:thing-descriptions>

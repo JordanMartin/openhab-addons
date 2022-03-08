@@ -18,6 +18,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaReceiver;
 import org.openhab.binding.freebox.internal.api.model.FreeboxLanHost;
+import org.openhab.binding.freebox.internal.api.model.home.FreeboxHomeNode;
 import org.openhab.core.thing.ThingUID;
 
 /**
@@ -34,11 +35,12 @@ public interface FreeboxDataListener {
     /**
      * This method is called just after the bridge thing handler fetched new data
      * from the Freebox server.
-     *
+     * 
      * @param bridge the Freebox server bridge.
      * @param lanHosts the LAN data received from the Freebox server.
      * @param airPlayDevices the list of AirPlay devices received from the Freebox server.
+     * @param homeNodeDevices
      */
     public void onDataFetched(ThingUID bridge, @Nullable List<FreeboxLanHost> lanHosts,
-            @Nullable List<FreeboxAirMediaReceiver> airPlayDevices);
+            @Nullable List<FreeboxAirMediaReceiver> airPlayDevices, @Nullable List<FreeboxHomeNode> homeNodeDevices);
 }

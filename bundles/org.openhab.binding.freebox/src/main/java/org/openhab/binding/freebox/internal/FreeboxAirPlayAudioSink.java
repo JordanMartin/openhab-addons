@@ -12,7 +12,11 @@
  */
 package org.openhab.binding.freebox.internal;
 
-import static org.openhab.core.audio.AudioFormat.*;
+import static org.openhab.core.audio.AudioFormat.CODEC_MP3;
+import static org.openhab.core.audio.AudioFormat.CONTAINER_NONE;
+import static org.openhab.core.audio.AudioFormat.MP3;
+import static org.openhab.core.audio.AudioFormat.OGG;
+import static org.openhab.core.audio.AudioFormat.WAV;
 
 import java.io.IOException;
 import java.util.HashSet;

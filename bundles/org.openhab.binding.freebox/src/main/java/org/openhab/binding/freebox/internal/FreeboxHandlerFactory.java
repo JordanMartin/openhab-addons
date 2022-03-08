@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.freebox.internal.handler.FreeboxHandler;
+import org.openhab.binding.freebox.internal.handler.FreeboxShutterThingHandler;
 import org.openhab.binding.freebox.internal.handler.FreeboxThingHandler;
 import org.openhab.core.audio.AudioHTTPServer;
 import org.openhab.core.audio.AudioSink;
@@ -117,6 +118,8 @@ public class FreeboxHandlerFactory extends BaseThingHandlerFactory {
 
         if (thingTypeUID.equals(FreeboxBindingConstants.FREEBOX_BRIDGE_TYPE_SERVER)) {
             return new FreeboxHandler((Bridge) thing);
+        } else if (FreeboxBindingConstants.FREEBOX_THING_TYPE_SHUTTER_HOME_NODE.equals(thingTypeUID)) {
+            return new FreeboxShutterThingHandler(thing);
         } else if (FreeboxBindingConstants.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
             FreeboxThingHandler handler = new FreeboxThingHandler(thing, timeZoneProvider);
             if (FreeboxBindingConstants.FREEBOX_THING_TYPE_AIRPLAY.equals(thingTypeUID)) {

@@ -27,47 +27,9 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaReceiver;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaReceiverRequest;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaReceiversResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAuthorizationStatus;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAuthorizationStatusResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAuthorizeRequest;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAuthorizeResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxAuthorizeResult;
-import org.openhab.binding.freebox.internal.api.model.FreeboxCallEntry;
-import org.openhab.binding.freebox.internal.api.model.FreeboxCallEntryResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxConnectionStatus;
-import org.openhab.binding.freebox.internal.api.model.FreeboxConnectionStatusResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxDiscoveryResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxEmptyResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxFtpConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxFtpConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxFtthStatusResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLanConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLanHost;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLanHostsResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLanInterface;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLanInterfacesResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLcdConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLcdConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxLoginResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxOpenSessionRequest;
-import org.openhab.binding.freebox.internal.api.model.FreeboxOpenSessionResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxPhoneStatus;
-import org.openhab.binding.freebox.internal.api.model.FreeboxPhoneStatusResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxSambaConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxSambaConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxSystemConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxSystemConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxUPnPAVConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxUPnPAVConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxWifiGlobalConfig;
-import org.openhab.binding.freebox.internal.api.model.FreeboxWifiGlobalConfigResponse;
-import org.openhab.binding.freebox.internal.api.model.FreeboxXdslStatusResponse;
+import org.openhab.binding.freebox.internal.api.model.*;
+import org.openhab.binding.freebox.internal.api.model.home.FreeboxHomeNode;
+import org.openhab.binding.freebox.internal.api.model.home.FreeboxHomeNodesResponse;
 import org.openhab.core.io.net.http.HttpUtil;
 import org.openhab.core.util.HexUtils;
 import org.slf4j.Logger;
@@ -324,6 +286,10 @@ public class FreeboxApiManager {
         return hosts;
     }
 
+    public List<FreeboxHomeNode> getHomeNodes() throws FreeboxException {
+        return executeGetUrl("home/nodes", FreeboxHomeNodesResponse.class);
+    }
+
     private List<FreeboxLanHost> getLanHostsFromInterface(String lanInterface) throws FreeboxException {
         return executeGetUrl("lan/browser/" + encodeUrl(lanInterface) + "/", FreeboxLanHostsResponse.class);
     }
@@ -368,6 +334,11 @@ public class FreeboxApiManager {
 
     public void reboot() throws FreeboxException {
         executePostUrl("system/reboot/", null, FreeboxEmptyResponse.class);
+    }
+
+    public void setShutterPosition(int homeNodeId, int position) throws FreeboxException {
+        executePutUrl("home/endpoints/" + homeNodeId + "/0", "{\"value\": " + position + "}",
+                FreeboxEmptyResponse.class);
     }
 
     private <T extends FreeboxResponse<F>, F> F executeGetUrl(String relativeUrl, Class<T> responseClass)

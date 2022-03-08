@@ -24,7 +24,9 @@ import org.openhab.binding.freebox.internal.api.FreeboxException;
 import org.openhab.binding.freebox.internal.api.model.FreeboxAirMediaReceiver;
 import org.openhab.binding.freebox.internal.api.model.FreeboxLanHost;
 import org.openhab.binding.freebox.internal.api.model.FreeboxLanHostL3Connectivity;
+import org.openhab.binding.freebox.internal.api.model.home.FreeboxHomeNode;
 import org.openhab.binding.freebox.internal.config.FreeboxAirPlayDeviceConfiguration;
+import org.openhab.binding.freebox.internal.config.FreeboxHomeNodeConfiguration;
 import org.openhab.binding.freebox.internal.config.FreeboxNetDeviceConfiguration;
 import org.openhab.binding.freebox.internal.config.FreeboxNetInterfaceConfiguration;
 import org.openhab.binding.freebox.internal.config.FreeboxServerConfiguration;
@@ -65,6 +67,7 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
     private boolean discoverNetDevice;
     private boolean discoverNetInterface;
     private boolean discoverAirPlayReceiver;
+    private boolean discoverHomeNode;
 
     /**
      * Creates a FreeboxDiscoveryService with background discovery disabled.
@@ -74,6 +77,7 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
         this.discoverPhone = true;
         this.discoverNetDevice = true;
         this.discoverNetInterface = true;
+        this.discoverHomeNode = true;
         this.discoverAirPlayReceiver = true;
     }
 
@@ -103,10 +107,13 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
             discoverNetInterface = property != null ? ((Boolean) property).booleanValue() : true;
             property = config.get(FreeboxServerConfiguration.DISCOVER_AIRPLAY_RECEIVER);
             discoverAirPlayReceiver = property != null ? ((Boolean) property).booleanValue() : true;
+            property = config.get(FreeboxServerConfiguration.DISCOVER_HOME_NODE);
+            discoverHomeNode = property != null ? (Boolean) property : true;
             logger.debug("Freebox discovery - discoverPhone : {}", discoverPhone);
             logger.debug("Freebox discovery - discoverNetDevice : {}", discoverNetDevice);
             logger.debug("Freebox discovery - discoverNetInterface : {}", discoverNetInterface);
             logger.debug("Freebox discovery - discoverAirPlayReceiver : {}", discoverAirPlayReceiver);
+            logger.debug("Freebox discovery - discoverHomeNode : {}", discoverHomeNode);
 
             handler.registerDataListener(this);
         }
@@ -129,7 +136,8 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
             try {
                 List<FreeboxLanHost> lanHosts = handler.getApiManager().getLanHosts();
                 List<FreeboxAirMediaReceiver> airPlayDevices = handler.getApiManager().getAirMediaReceivers();
-                onDataFetched(handler.getThing().getUID(), lanHosts, airPlayDevices);
+                List<FreeboxHomeNode> homeNodes = handler.getApiManager().getHomeNodes();
+                onDataFetched(handler.getThing().getUID(), lanHosts, airPlayDevices, homeNodes);
             } catch (FreeboxException e) {
                 logger.warn("Error while requesting data for things discovery", e);
             }
@@ -138,7 +146,7 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
 
     @Override
     public void onDataFetched(ThingUID bridge, @Nullable List<FreeboxLanHost> lanHosts,
-            @Nullable List<FreeboxAirMediaReceiver> airPlayDevices) {
+            @Nullable List<FreeboxAirMediaReceiver> airPlayDevices, @Nullable List<FreeboxHomeNode> homeNodes) {
         ThingUID thingUID;
         DiscoveryResult discoveryResult;
 
@@ -149,6 +157,10 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
             discoveryResult = DiscoveryResultBuilder.create(thingUID).withBridge(bridge).withLabel("Wired phone")
                     .build();
             thingDiscovered(discoveryResult);
+        }
+
+        if (homeNodes != null && discoverHomeNode) {
+            discoverHomeNode(bridge, homeNodes);
         }
 
         if (lanHosts != null && (discoverNetDevice || discoverNetInterface)) {
@@ -223,5 +235,21 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService
                 }
             }
         }
+    }
+
+    private void discoverHomeNode(ThingUID bridge, List<FreeboxHomeNode> homeNodes) {
+        homeNodes.stream().filter(node -> "shutter".equals(node.getCategory())).map(node -> {
+            int id = node.getId();
+            String name = node.getLabel();
+            String category = node.getCategory();
+            ThingUID thingUID = new ThingUID(FreeboxBindingConstants.FREEBOX_THING_TYPE_SHUTTER_HOME_NODE, bridge,
+                    String.valueOf(id));
+
+            logger.trace("Adding new Freebox Home Node {} to inbox", thingUID);
+            Map<String, Object> properties = new HashMap<>(1);
+            properties.put(FreeboxHomeNodeConfiguration.ID, id);
+            return DiscoveryResultBuilder.create(thingUID).withProperties(properties).withBridge(bridge)
+                    .withLabel(String.format("%s (%s)", name, category)).build();
+        }).forEach(this::thingDiscovered);
     }
 }

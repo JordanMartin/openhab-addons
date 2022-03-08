@@ -46,6 +46,7 @@ The *server* bridge thing requires the following configuration parameters:
 | Enable Network Device Discovery    | discoverNetDevice       | Enable the discovery of network device things.                              | false    | true                 |
 | Enable Network Interface Discovery | discoverNetInterface    | Enable the discovery of network interface things.                           | false    | true                 |
 | Enable AirPlay Receiver Discovery  | discoverAirPlayReceiver | Enable the discovery of AirPlay receiver things.                            | false    | true                 |
+| Enable Home Node Discovery         | discoverHomeNode        | Enable the discovery of Home Node things.                            | false    | true                 |
 
 If the parameter *fqdn* is not set, the binding will use the default address used by Free to access your Freebox Server (mafreebox.freebox.fr).
 The bridge thing will initialize only if a valid application token (parameter *appToken*) is filled.
@@ -84,6 +85,14 @@ The *airplay* thing requires the following configuration parameters:
 | Name            | name         | Name of the AirPlay device  | true     |
 | Password        | password     | AirPlay password            | false    |
 | Accept all MP3  | acceptAllMp3 | Accept any bitrate for MP3 audio or only bitrates greater than 64 kbps | false    |
+
+### Home Node
+
+The *shutter* thing requires the following configuration parameters:
+
+| Parameter Label | Parameter ID | Description                 | Required |
+|-----------------|--------------|-----------------------------|----------|
+| id              | id           | Id of the home node         | true     |
 
 ## Authentication
 

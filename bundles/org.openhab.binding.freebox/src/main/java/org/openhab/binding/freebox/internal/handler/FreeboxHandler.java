@@ -12,7 +12,33 @@
  */
 package org.openhab.binding.freebox.internal.handler;
 
-import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.*;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.AIRMEDIASTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.API_BASE_URL;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.API_VERSION;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.BYTESDOWN;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.BYTESUP;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.FANSPEED;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.FTPSTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.FTTHSTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.FWVERSION;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.IPV4;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.LCDBRIGHTNESS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.LCDFORCED;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.LCDORIENTATION;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.LINESTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.RATEDOWN;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.RATEUP;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.REBOOT;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.RESTARTED;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.SAMBAFILESTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.SAMBAPRINTERSTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.TEMPCPUB;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.TEMPCPUM;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.TEMPSWITCH;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.UPNPAVSTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.UPTIME;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.WIFISTATUS;
+import static org.openhab.binding.freebox.internal.FreeboxBindingConstants.XDSLSTATUS;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +59,7 @@ import org.openhab.binding.freebox.internal.api.model.FreeboxLanHost;
 import org.openhab.binding.freebox.internal.api.model.FreeboxLcdConfig;
 import org.openhab.binding.freebox.internal.api.model.FreeboxSambaConfig;
 import org.openhab.binding.freebox.internal.api.model.FreeboxSystemConfig;
+import org.openhab.binding.freebox.internal.api.model.home.FreeboxHomeNode;
 import org.openhab.binding.freebox.internal.config.FreeboxServerConfiguration;
 import org.openhab.binding.freebox.internal.discovery.FreeboxDiscoveryService;
 import org.openhab.core.config.core.Configuration;
@@ -189,10 +216,12 @@ public class FreeboxHandler extends BaseBridgeHandler {
         commOk &= (lanHosts != null);
         List<FreeboxAirMediaReceiver> airPlayDevices = fetchAirPlayDevices();
         commOk &= (airPlayDevices != null);
+        List<FreeboxHomeNode> homeNodeDevices = fetchHomeNodes();
+        commOk &= (homeNodeDevices != null);
 
         // Trigger a new discovery of things
         for (FreeboxDataListener dataListener : dataListeners) {
-            dataListener.onDataFetched(getThing().getUID(), lanHosts, airPlayDevices);
+            dataListener.onDataFetched(getThing().getUID(), lanHosts, airPlayDevices, homeNodeDevices);
         }
 
         if (commOk) {
@@ -527,6 +556,15 @@ public class FreeboxHandler extends BaseBridgeHandler {
             return devices;
         } catch (FreeboxException e) {
             logger.debug("Thing {}: exception in fetchAirPlayDevices: {}", getThing().getUID(), e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private List<FreeboxHomeNode> fetchHomeNodes() {
+        try {
+            return apiManager.getHomeNodes();
+        } catch (FreeboxException e) {
+            logger.debug("Thing {}: exception in fetchHomeNodes: {}", getThing().getUID(), e.getMessage(), e);
             return null;
         }
     }
