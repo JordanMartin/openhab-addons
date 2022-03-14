@@ -14,4 +14,28 @@
 
     <name>openHAB Add-ons :: Bundles :: TheKeys Binding</name>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                                <copy file="target/org.openhab.binding.thekeys-3.3.0-SNAPSHOT.jar"
+                                      tofile="C:/dev/iot/openhab-3.2.0/addons/org.openhab.binding.thekeys-3.3.0-SNAPSHOT.jar"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
