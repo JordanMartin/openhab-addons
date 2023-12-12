@@ -31,6 +31,7 @@ import org.openhab.binding.thekeys.internal.api.GatewayService;
 import org.openhab.binding.thekeys.internal.api.TheKeysError;
 import org.openhab.binding.thekeys.internal.api.model.LockerDTO;
 import org.openhab.binding.thekeys.internal.api.model.LockerStatusDTO;
+import org.openhab.binding.thekeys.internal.api.model.SynchronizeDTO;
 import org.openhab.binding.thekeys.internal.gateway.TheKeysGatewayHandler;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
@@ -128,6 +129,16 @@ public class TheKeysSmartlockHandler extends BaseThingHandler {
         try {
             updateState(CHANNEL_SYNC_IN_PROGRESS, OnOffType.ON);
             LockerStatusDTO lockStatus = gatewayApi().getLockStatus(config.lockId);
+
+             if (lockStatus.isNeedResync()) {
+                 Thread.sleep(5000);
+                 SynchronizeDTO synchronizeDTO = gatewayApi().synchronizeGateway();
+             if (!"ok".equals(synchronizeDTO.getStatus())) {
+                throw new TheKeysError("Fail to synchronize the gateway");
+             }
+                return false;
+             }
+
             if ("ko".equals(lockStatus.getStatus())) {
                 throw new TheKeysError(
                         "Request failed with code " + lockStatus.getCode() + ". " + lockStatus.getCause());

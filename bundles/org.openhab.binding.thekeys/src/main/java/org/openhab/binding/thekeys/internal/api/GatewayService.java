@@ -13,11 +13,7 @@
 package org.openhab.binding.thekeys.internal.api;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.thekeys.internal.api.model.GatewayInfosDTO;
-import org.openhab.binding.thekeys.internal.api.model.LockerDTO;
-import org.openhab.binding.thekeys.internal.api.model.LockerStatusDTO;
-import org.openhab.binding.thekeys.internal.api.model.LockersDTO;
-import org.openhab.binding.thekeys.internal.api.model.OpenCloseDTO;
+import org.openhab.binding.thekeys.internal.api.model.*;
 import org.openhab.binding.thekeys.internal.gateway.TheKeysGatewayConfiguration;
 import org.openhab.binding.thekeys.internal.utils.ExceptionUtils;
 import org.slf4j.Logger;
@@ -75,6 +71,20 @@ public class GatewayService {
      */
     public LockerStatusDTO getLockStatus(int lockId) throws IOException {
         return post("/locker_status", LockerStatusDTO.class, lockId);
+    }
+
+    /**
+     * Synchronize the gateway
+     */
+    public SynchronizeDTO synchronizeGateway() throws IOException {
+        return get("/synchronize", SynchronizeDTO.class);
+    }
+
+    /**
+     * Synchronize the gateway
+     */
+    public SynchronizeDTO synchronizeLock() throws IOException {
+        return get("/locker/synchronize", SynchronizeDTO.class);
     }
 
     /**
